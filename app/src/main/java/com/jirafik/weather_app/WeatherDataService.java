@@ -4,7 +4,6 @@ import static com.android.volley.Request.Method.GET;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.volley.toolbox.JsonObjectRequest;
 
@@ -12,11 +11,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class WeatherDataService {
 
     private final String API_KEY = "1f395ef4f08e67b6a2063b5c23402ded";
     private static final String QUERY_FOR_CITY_ID = "https://api.openweathermap.org/data/2.5/weather?q=";
-    private static final String QUERY_FOR_WEATHER_BY_ID = "https://api.openweathermap.org/data/2.5/weather?id=";
+    private static final String QUERY_FOR_WEATHER_BY_ID = "https://api.openweathermap.org/data/2.5/forecast?id=";
 
     Context context;
     String cityId;
@@ -67,8 +69,6 @@ public class WeatherDataService {
                     }
 
                     Log.i("WeatherDataService", "All is working fine.");
-
-//                    Toast.makeText(context, response.toString(), Toast.LENGTH_SHORT).show();
                 }, error -> {
 
         });
@@ -83,30 +83,56 @@ public class WeatherDataService {
 
     private WeatherReportModel fetchDataFromJsonRequest(JSONObject request) throws JSONException {
 
-        JSONObject wind = request.getJSONObject("wind");
-        JSONObject main = request.getJSONObject("main");
-        JSONArray weather = request.getJSONArray("weather");
-        JSONObject weatherJsonObject = weather.getJSONObject(0);
+        JSONArray jsonArray = request.getJSONArray("list");
 
-        long cityId = request.getLong("id");
-        long cityTimezone = request.getLong("timezone");
+        List<WeatherReportModel> forecastByIDList = new ArrayList<>(); //list to get all days for certain city
+
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+            Log.wtf("WTF_TAG", jsonObject.toString());
+
+            if (jsonObject.getString("dt_txt").contains("06:00:00")) {
+                Log.wtf("WTF_TAG", "Count of iterations: " + i);
+                forecastByIDList.add(mapToModel(jsonObject, request));
+            }
+//            else {
+//                continue;
+//                Log.i("ELSE_TAG", "ELSE BLOCK MSG");
+//                return null;
+//            }
+        }
+
+        return forecastByIDList.get(0);
+    }
+
+    private WeatherReportModel mapToModel(JSONObject jsonObject, JSONObject request) throws JSONException {
+        WeatherReportModel weatherReportModel = new WeatherReportModel();
+
+        JSONObject wind = jsonObject.getJSONObject("wind");
+        JSONObject main = jsonObject.getJSONObject("main");
+        JSONObject city = request.getJSONObject("city");
+        JSONObject weatherJsonObject = jsonObject.getJSONArray("weather").getJSONObject(0);
+
+        long cityId = city.getLong("id");
+        long cityTimezone = city.getLong("timezone");
         long cityHumidity = main.getLong("humidity");
         double cityWindSpeed = Float.parseFloat(wind.getString("speed"));
         double cityTemp = main.getDouble("temp");
-        String cityName = request.getString("name");
+        String cityName = city.getString("name");
         String cityWeatherDesc = weatherJsonObject.getString("description");
+        String date = jsonObject.getString("dt_txt");
 
-        WeatherReportModel reportModel = new WeatherReportModel();
-
-        reportModel.setId(cityId);
-        reportModel.setTimezone(cityTimezone);
-        reportModel.setHumidity(cityHumidity);
-        reportModel.setWindSpeed(cityWindSpeed);
-        reportModel.setTemp(cityTemp);
-        reportModel.setCityName(cityName);
-        reportModel.setWeatherDescription(cityWeatherDesc);
-
-        return reportModel;
+        weatherReportModel.setId(cityId);
+        weatherReportModel.setTimezone(cityTimezone);
+        weatherReportModel.setHumidity(cityHumidity);
+        weatherReportModel.setWindSpeed(cityWindSpeed);
+        weatherReportModel.setTemp(cityTemp);
+        weatherReportModel.setCityName(cityName);
+        weatherReportModel.setWeatherDescription(cityWeatherDesc);
+        weatherReportModel.setDate(date);
+        Log.i("SOME_TAG", String.valueOf(weatherReportModel));
+        return weatherReportModel;
     }
 
     public interface VolleyResponseListener {

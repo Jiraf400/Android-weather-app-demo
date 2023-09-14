@@ -1,68 +1,28 @@
 package com.jirafik.weather_app;
 
-public class WeatherReportModel {
-    //{
-    //    "coord": {
-    //        "lon": -0.1257,
-    //        "lat": 51.5085
-    //    },
-    //    "weather": [
-    //        {
-    //            "id": 804,
-    //            "main": "Clouds",
-    //            "description": "overcast clouds",
-    //            "icon": "04d"
-    //        }
-    //    ],
-    //    "base": "stations",
-    //    "main": {
-    //        "temp": 292.62,
-    //        "feels_like": 292.82,
-    //        "temp_min": 290.85,
-    //        "temp_max": 293.71,
-    //        "pressure": 1013,
-    //        "humidity": 84
-    //    },
-    //    "visibility": 10000,
-    //    "wind": {
-    //        "speed": 3.09,
-    //        "deg": 240
-    //    },
-    //    "clouds": {
-    //        "all": 100
-    //    },
-    //    "dt": 1694416723,
-    //    "sys": {
-    //        "type": 2,
-    //        "id": 2075535,
-    //        "country": "GB",
-    //        "sunrise": 1694410107,
-    //        "sunset": 1694456788
-    //    },
-    //    "timezone": 3600,
-    //    "id": 2643743,
-    //    "name": "London",
-    //    "cod": 200
-    //}
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
+public class WeatherReportModel {
     private long id;
     private String cityName;
+    private String weatherDescription;
+    private String date;
     private long timezone;
     private long humidity;
     private double windSpeed;
     private double temp;
-    private String weatherDescription;
 
-
-    public WeatherReportModel(long id, String cityName, long timezone, long humidity, double windSpeed, double temp,
-                              String weatherDescription) {
+    public WeatherReportModel(long id, String cityName, String weatherDescription, String date, long timezone, long humidity,
+                              double windSpeed, double temp) {
         this.id = id;
         this.cityName = cityName;
+        this.weatherDescription = weatherDescription;
+        this.date = date;
         this.timezone = timezone;
         this.humidity = humidity;
         this.windSpeed = windSpeed;
         this.temp = temp;
-        this.weatherDescription = weatherDescription;
     }
 
     public WeatherReportModel() {
@@ -82,6 +42,22 @@ public class WeatherReportModel {
 
     public void setCityName(String cityName) {
         this.cityName = cityName;
+    }
+
+    public String getWeatherDescription() {
+        return weatherDescription;
+    }
+
+    public void setWeatherDescription(String weatherDescription) {
+        this.weatherDescription = weatherDescription;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public long getTimezone() {
@@ -105,7 +81,9 @@ public class WeatherReportModel {
     }
 
     public void setWindSpeed(double windSpeed) {
-        this.windSpeed = windSpeed;
+        BigDecimal bigDecimalDouble = new BigDecimal(windSpeed);
+
+        this.windSpeed = bigDecimalDouble.setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
     public double getTemp() {
@@ -116,24 +94,18 @@ public class WeatherReportModel {
         this.temp = temp;
     }
 
-    public String getWeatherDescription() {
-        return weatherDescription;
-    }
-
-    public void setWeatherDescription(String weatherDescription) {
-        this.weatherDescription = weatherDescription;
-    }
-
     @Override
     public String toString() {
         return "WeatherReportModel{" +
                 "id=" + id +
-                ", cityName='" + cityName + '\'' +
-                ", timezone=" + timezone +
+                ", city='" + cityName + '\'' +
+                ", description='" + weatherDescription + '\'' +
+                ", date='" + date + '\'' +
                 ", humidity=" + humidity +
-                ", windSpeed=" + windSpeed +
+                ", wind=" + windSpeed +
                 ", temp=" + temp +
-                ", weatherDescription='" + weatherDescription + '\'' +
                 '}';
     }
 }
+
+

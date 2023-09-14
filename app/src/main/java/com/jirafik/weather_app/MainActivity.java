@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button btn_cityID, btn_getWeatherByID, btn_getWeatherByName;
+    Button btn_cityID, btnGetForecastByID, btn_getWeatherByName;
     EditText et_dataInput;
     View lv_weatherReports;
     WeatherDataService weatherDataService;
@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         btn_cityID = findViewById(R.id.btn_getCityId);
-        btn_getWeatherByID = findViewById(R.id.btn_getWeatherByCityId);
+        btnGetForecastByID = findViewById(R.id.btn_getWeatherByCityId);
         btn_getWeatherByName = findViewById(R.id.btn_getWeatherByCityName);
         et_dataInput = findViewById(R.id.et_dataInput);
         lv_weatherReports = findViewById(R.id.lv_weatherReports);
@@ -29,16 +29,15 @@ public class MainActivity extends AppCompatActivity {
 
         btn_cityID.setOnClickListener(this::btnCityID);
 
-        btn_getWeatherByID.setOnClickListener(this::btnWeatherByID);
+        btnGetForecastByID.setOnClickListener(this::btnForecastByID);
 
-
-        btn_getWeatherByName.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(MainActivity.this, "You typed " + et_dataInput.getText().toString(),
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
+//        btn_getWeatherByName.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Toast.makeText(MainActivity.this, "You typed " + et_dataInput.getText().toString(),
+//                        Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
     }
 
@@ -58,9 +57,10 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    private void btnWeatherByID(View view) {
+    private void btnForecastByID(View view) {
 
-        weatherDataService.getCityForecastByID("4164138", new WeatherDataService.ForecastByIDResponseListener() {
+        weatherDataService.getCityForecastByID(et_dataInput.getText().toString(),
+                new WeatherDataService.ForecastByIDResponseListener() {
             @Override
             public void onError(String msg) {
                 Toast.makeText(MainActivity.this, "Error occurred", Toast.LENGTH_SHORT).show();
@@ -71,6 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, reportModel.toString(), Toast.LENGTH_SHORT).show();
             }
         });
+
 
     }
 }
