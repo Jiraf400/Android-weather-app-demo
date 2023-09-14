@@ -54,16 +54,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/btn_getCityId" />
 
-    <view
-            class="androidx.appcompat.app.AlertController$RecycleListView"
+    <ListView
             android:id="@+id/lv_weatherReports"
             android:layout_width="match_parent"
             android:layout_height="628dp"
             app:layout_constraintTop_toBottomOf="@id/et_dataInput"
             android:layout_marginTop="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0" />
+            android:divider="@android:color/transparent"
+            android:dividerHeight="10.0sp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

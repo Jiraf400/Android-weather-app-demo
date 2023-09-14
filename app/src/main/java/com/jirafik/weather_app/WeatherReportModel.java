@@ -96,15 +96,11 @@ public class WeatherReportModel {
 
     @Override
     public String toString() {
-        return "WeatherReportModel{" +
-                "id=" + id +
-                ", city='" + cityName + '\'' +
+        return "Date='" + date + '\'' +
                 ", description='" + weatherDescription + '\'' +
-                ", date='" + date + '\'' +
-                ", humidity=" + humidity +
-                ", wind=" + windSpeed +
                 ", temp=" + temp +
-                '}';
+                ", humidity=" + humidity +
+                ", wind=" + windSpeed;
     }
 }
 

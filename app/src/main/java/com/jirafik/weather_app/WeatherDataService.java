@@ -19,6 +19,7 @@ public class WeatherDataService {
     private final String API_KEY = "1f395ef4f08e67b6a2063b5c23402ded";
     private static final String QUERY_FOR_CITY_ID = "https://api.openweathermap.org/data/2.5/weather?q=";
     private static final String QUERY_FOR_WEATHER_BY_ID = "https://api.openweathermap.org/data/2.5/forecast?id=";
+    private static final String QUERY_FOR_WEATHER_BY_CITY_NAME = "https://api.openweathermap.org/data/2.5/forecast?q=";
 
     Context context;
     String cityId;
@@ -49,8 +50,7 @@ public class WeatherDataService {
         SingletonRequest.getInstance(context).addToRequestQueue(request);
     }
 
-
-    public void getCityForecastByID(String cityID, ForecastByIDResponseListener forecastListener) {
+    public void getCityForecastByID(String cityID, ForecastByCityResponseListener forecastListener) {
 
         String url = QUERY_FOR_WEATHER_BY_ID + cityID + "&appid=" + API_KEY;
 
@@ -58,12 +58,12 @@ public class WeatherDataService {
                 response -> {
 
                     try {
-                        WeatherReportModel weatherReportModel = fetchDataFromJsonRequest(response);
+                        List<WeatherReportModel> weatherReportModelList = fetchDataFromJsonRequest(response);
 
-                        forecastListener.onResponse(weatherReportModel);
+                        forecastListener.onResponse(weatherReportModelList);
 
                     } catch (JSONException e) {
-                        Log.e("WDService", response.toString());
+
                         e.printStackTrace();
                         throw new RuntimeException(e);
                     }
@@ -77,33 +77,51 @@ public class WeatherDataService {
 
     }
 
-//    public List<WeatherReportModel> getCityForecastByName(String cityName) {
-//        return null;
-//    }
+    public List<WeatherReportModel> getCityForecastByName(String cityName,
+                                                          ForecastByCityResponseListener forecastListener) {
 
-    private WeatherReportModel fetchDataFromJsonRequest(JSONObject request) throws JSONException {
+        String url = QUERY_FOR_WEATHER_BY_CITY_NAME + cityName + "&appid=" + API_KEY;
+
+        JsonObjectRequest request = new JsonObjectRequest(GET, url, null,
+                response -> {
+
+                    try {
+                        List<WeatherReportModel> weatherReportModelList = fetchDataFromJsonRequest(response);
+
+                        forecastListener.onResponse(weatherReportModelList);
+
+                    } catch (JSONException e) {
+
+                        e.printStackTrace();
+                        throw new RuntimeException(e);
+                    }
+
+                    Log.i("WeatherDataService", "All is working fine.");
+                }, error -> {
+
+        });
+
+        SingletonRequest.getInstance(context).addToRequestQueue(request);
+
+
+        return null;
+    }
+
+    private List<WeatherReportModel> fetchDataFromJsonRequest(JSONObject request) throws JSONException {
 
         JSONArray jsonArray = request.getJSONArray("list");
 
         List<WeatherReportModel> forecastByIDList = new ArrayList<>(); //list to get all days for certain city
 
         for (int i = 0; i < jsonArray.length(); i++) {
+
             JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-            Log.wtf("WTF_TAG", jsonObject.toString());
-
             if (jsonObject.getString("dt_txt").contains("06:00:00")) {
-                Log.wtf("WTF_TAG", "Count of iterations: " + i);
                 forecastByIDList.add(mapToModel(jsonObject, request));
             }
-//            else {
-//                continue;
-//                Log.i("ELSE_TAG", "ELSE BLOCK MSG");
-//                return null;
-//            }
         }
 
-        return forecastByIDList.get(0);
+        return forecastByIDList;
     }
 
     private WeatherReportModel mapToModel(JSONObject jsonObject, JSONObject request) throws JSONException {
@@ -141,10 +159,10 @@ public class WeatherDataService {
         void onResponse(String cityID);
     }
 
-    public interface ForecastByIDResponseListener {
+    public interface ForecastByCityResponseListener {
         void onError(String msg);
 
-        void onResponse(WeatherReportModel reportModel);
+        void onResponse(List<WeatherReportModel> reportModelList);
     }
 
 }
